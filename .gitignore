@@ -64,7 +64,8 @@ htmlcov/
 coverage/
 
 # Database & Storage
-data/
+data/*
+!data/documents/
 *.sqlite3
 *.db
 pgdata/
