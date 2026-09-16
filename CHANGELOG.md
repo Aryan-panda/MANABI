@@ -61,3 +61,31 @@ All notable changes and architectural phase completions are documented in this f
   - Executed `tsc && vite build`: **0 errors**, 3,160 modules transformed, production assets generated cleanly.
   - Executed `pytest backend/tests -v`: **13 of 13 unit tests passed (100%)**.
 
+---
+
+## [Phase 3] - 2026-09-16
+
+### Added
+- **Observability & Prometheus Metrics (Section 38)**:
+  - Thread-safe, pure-Python Prometheus metrics collector (`backend/app/observability/metrics.py`) implementing Counter, Gauge, and Histogram primitives without external dependencies.
+  - Exposed `/metrics` endpoint on the FastAPI application exposing standard Prometheus 0.0.4 exposition format text.
+  - Instrumenting metrics: `manabi_http_requests_total`, `manabi_http_request_duration_seconds`, `manabi_llm_requests_total`, `manabi_llm_latency_seconds`, `manabi_llm_tokens_total`, `manabi_rag_retrievals_total`, `manabi_tool_executions_total`, and `manabi_cache_operations_total`.
+  - Structured JSON logging (`backend/app/observability/logger.py`) formatting application logs with ISO-8601 timestamps, correlation IDs, user IDs, model latencies, token counts, and error stack traces.
+- **Benchmark Evaluation Framework (Section 39)**:
+  - Multi-domain benchmark evaluation dataset (`backend/app/evaluation/datasets.py`) covering Academic, Engineering, Commerce, Management, and Law domains.
+  - Information retrieval and accuracy metrics (`backend/app/evaluation/metrics.py`): Recall@K, Precision@K, Mean Reciprocal Rank (MRR), keyword coverage, deterministic numerical tolerance verification, and Mermaid syntax validation.
+  - Automated benchmark evaluation runner (`backend/app/evaluation/runner.py`) achieving **88.89% routing accuracy**, **100% deterministic math accuracy**, **100% Mermaid syntax validity**, and **100% RAG Grounding Recall@3**.
+- **Security Hardening (Section 29)**:
+  - Input guardrails (`backend/app/security/guardrails.py`) scanning for and blocking prompt-injection attempts, DAN jailbreaks, and system instruction leaks.
+  - Output boundary sanitizer redacting leaked API keys and authorization bearer tokens.
+  - Document access control layer verifying user role hierarchy (student/faculty/admin) and document governance status (active/superseded/archived).
+  - Rate limiting sliding-window helper with Redis backend and graceful local fallback.
+- **Load Testing & Documentation (Sections 40, 45, 49)**:
+  - Locust load-testing script (`tests/load/locustfile.py`) simulating concurrent user sessions across health, calculator, diagram, and plan review endpoints.
+  - Requirements Traceability Matrix (`docs/REQUIREMENTS_TRACEABILITY.md`) mapping all 50 design doc sections to architecture components, database entities, APIs, and tests.
+  - Comprehensive Deployment Guide (`docs/deployment/DEPLOYMENT_GUIDE.md`) with topology diagram, Docker Compose instructions, and operational runbooks.
+- **Verification & Testing**:
+  - Expanded backend test suite from 13 to **27 automated tests** across 8 test modules (`test_observability.py`, `test_security.py`, `test_evaluation.py`, `test_academic_provider.py`, `test_agents.py`, `test_calculator.py`, `test_chunker.py`, `test_memory.py`).
+  - **100% pass rate (27/27 passed in 1.79s)**.
+
+

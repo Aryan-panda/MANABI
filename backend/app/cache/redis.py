@@ -1,7 +1,12 @@
 import json
 import logging
 from typing import Optional, Any
-import redis.asyncio as aioredis
+
+try:
+    import redis.asyncio as aioredis
+except ImportError:
+    aioredis = None
+
 from app.config.settings import settings
 
 logger = logging.getLogger("manabi.cache.redis")
@@ -14,9 +19,15 @@ class RedisClient:
     """
 
     def __init__(self):
-        self._redis: Optional[aioredis.Redis] = None
+        self._redis = None
 
-    async def get_client(self) -> Optional[aioredis.Redis]:
+    @property
+    def is_available(self) -> bool:
+        return aioredis is not None and self._redis is not None
+
+    async def get_client(self):
+        if aioredis is None:
+            return None
         if self._redis is None:
             try:
                 self._redis = aioredis.from_url(

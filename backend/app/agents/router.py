@@ -23,29 +23,29 @@ class IntentRouter:
     KEYWORDS: Dict[str, Dict[str, list]] = {
         "academic": {
             "attendance": ["attendance", "condonation", "shortage", "classes held", "medical leave"],
-            "courses": ["course", "syllabus", "prerequisite", "curriculum", "credit", "elective"],
+            "courses": ["course", "syllabus", "prerequisite", "prerequisites", "curriculum", "credit", "credits", "elective", "enroll", "enrollment"],
             "exam_results": ["exam", "gpa", "cgpa", "grades", "transcript", "backlog", "revaluation"],
-            "plan_review": ["review my plan", "semester plan", "study plan", "degree plan", "course schedule"],
-            "regulations": ["plagiarism", "cheating", "disciplinary", "student handbook", "academic policy"],
+            "plan_review": ["review my plan", "semester plan", "study plan", "degree plan", "course schedule", "overload"],
+            "regulations": ["plagiarism", "cheating", "disciplinary", "student handbook", "academic policy", "academic regulations"],
         },
         "engineering": {
             "system_design": ["system design", "architecture", "microservices", "modular monolith", "distributed"],
             "database": ["database design", "schema", "erd", "sql vs nosql", "pgvector", "indexing"],
-            "capacity": ["qps", "throughput", "bandwidth", "storage capacity", "latency budget", "cache sizing"],
+            "capacity": ["qps", "throughput", "bandwidth", "storage", "storage capacity", "latency budget", "cache sizing", "cache size", "sla"],
             "diagram": ["mermaid", "flowchart", "sequence diagram", "er diagram", "architecture diagram"],
             "code_review": ["debug", "refactor", "spring boot", "fastapi", "docker compose", "concurrency"],
         },
         "commerce": {
-            "finance": ["balance sheet", "income statement", "cash flow", "roi", "capex", "opex"],
-            "pricing": ["unit economics", "pricing strategy", "cogs", "gross margin", "ebitda", "valuation"],
+            "finance": ["balance sheet", "income statement", "cash flow", "roi", "capex", "opex", "revenue"],
+            "pricing": ["unit economics", "pricing strategy", "cogs", "gross margin", "ebitda", "valuation", "cac", "ltv", "churn", "payback period", "saas"],
         },
         "management": {
             "strategy": ["okr", "kpi", "agile", "scrum", "sprint", "kanban", "stakeholder management"],
-            "leadership": ["change management", "organizational design", "team topology", "resource allocation"],
+            "leadership": ["change management", "organizational design", "team topology", "team topologies", "stream-aligned", "platform team", "enabling team", "resource allocation", "velocity"],
         },
         "law": {
-            "contracts": ["contract", "clause", "nda", "terms of service", "liability", "indemnity"],
-            "intellectual_property": ["patent", "trademark", "copyright", "fair use", "gdpr", "compliance"],
+            "contracts": ["contract", "clause", "nda", "terms of service", "liability", "indemnity", "confidentiality"],
+            "intellectual_property": ["patent", "trademark", "copyright", "fair use", "gdpr", "compliance", "agpl", "gpl", "mit license", "copyleft", "license", "licensing"],
         }
     }
 
@@ -56,7 +56,10 @@ class IntentRouter:
         for agent, tasks in self.KEYWORDS.items():
             scores[agent] = {}
             for task, keywords in tasks.items():
-                match_count = sum(1 for kw in keywords if re.search(r"\b" + re.escape(kw) + r"\b", lowered))
+                match_count = sum(
+                    1 for kw in keywords
+                    if re.search(r"\b" + re.escape(kw) + r"s?\b", lowered)
+                )
                 if match_count > 0:
                     scores[agent][task] = match_count
 

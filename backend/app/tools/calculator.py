@@ -185,3 +185,29 @@ class EngineeringCalculator:
             is_within_budget=is_within_budget,
             slack_remaining_ms=round(slack, 2),
         )
+
+
+def calculate_qps(**kwargs) -> Dict[str, Any]:
+    res = EngineeringCalculator.calculate_qps(QPSCalculationInput(**kwargs))
+    return res.model_dump()
+
+
+def calculate_storage(**kwargs) -> Dict[str, Any]:
+    res = EngineeringCalculator.calculate_storage(StorageCalculationInput(**kwargs))
+    return res.model_dump()
+
+
+def calculate_bandwidth(**kwargs) -> Dict[str, Any]:
+    res = EngineeringCalculator.calculate_bandwidth(BandwidthCalculationInput(**kwargs))
+    return res.model_dump()
+
+
+def calculate_cache_size(**kwargs) -> Dict[str, Any]:
+    res = EngineeringCalculator.calculate_cache_sizing(CacheSizingInput(**kwargs))
+    return res.model_dump()
+
+
+def calculate_latency_budget(**kwargs) -> Dict[str, Any]:
+    res = EngineeringCalculator.calculate_latency_budget(LatencyBudgetInput(**kwargs))
+    return res.model_dump()
+

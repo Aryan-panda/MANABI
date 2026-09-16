@@ -4,13 +4,14 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from app.config.settings import settings
 from app.api.v1.router import api_v1_router
 from app.database.session import engine
 from app.database.base import Base
 from app.database.models import Role, Agent, Document, DocumentVersion, DocumentChunk
 from app.rag.chunking.structure_aware import structure_chunker
+from app.observability import registry, HTTP_REQUESTS_TOTAL, HTTP_REQUEST_DURATION_SECONDS
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -66,9 +67,23 @@ async def correlation_id_middleware(request: Request, call_next):
 
     response = await call_next(request)
 
-    latency_ms = (time.perf_counter() - start_time) * 1000.0
+    duration = time.perf_counter() - start_time
+    latency_ms = duration * 1000.0
     response.headers["X-Correlation-ID"] = correlation_id
     response.headers["X-Response-Time-Ms"] = f"{latency_ms:.2f}"
+
+    # Track Prometheus HTTP metrics
+    HTTP_REQUESTS_TOTAL.inc(
+        method=request.method,
+        endpoint=request.url.path,
+        status=str(response.status_code),
+    )
+    HTTP_REQUEST_DURATION_SECONDS.observe(
+        duration,
+        method=request.method,
+        endpoint=request.url.path,
+    )
+
     return response
 
 
@@ -84,3 +99,10 @@ async def root():
         "documentation": "/docs",
         "status": "operational",
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus exposition format metrics endpoint conforming to Section 38."""
+    return PlainTextResponse(registry.generate_metrics_text(), media_type="text/plain; version=0.0.4")
+

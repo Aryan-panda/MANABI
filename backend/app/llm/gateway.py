@@ -6,6 +6,11 @@ from app.llm.providers.gemini import GeminiProvider
 from app.llm.providers.openai import OpenAIProvider
 from app.llm.providers.ollama import OllamaProvider
 from app.config.settings import settings
+from app.observability import (
+    LLM_REQUESTS_TOTAL,
+    LLM_LATENCY_SECONDS,
+    LLM_TOKENS_TOTAL,
+)
 
 logger = logging.getLogger("manabi.llm.gateway")
 
@@ -48,12 +53,19 @@ class ModelGateway:
                     max_tokens=max_tokens,
                     **kwargs
                 )
+                # Record metrics
+                LLM_REQUESTS_TOTAL.inc(provider=response.provider, model=response.model, status="success")
+                LLM_LATENCY_SECONDS.observe(response.latency_ms / 1000.0, provider=response.provider, model=response.model)
+                LLM_TOKENS_TOTAL.inc(response.input_tokens, provider=response.provider, model=response.model, type="prompt")
+                LLM_TOKENS_TOTAL.inc(response.output_tokens, provider=response.provider, model=response.model, type="completion")
+
                 logger.info(
                     f"LLM Generation Succeeded | Provider: {response.provider} | Model: {response.model} | "
                     f"Tokens: {response.input_tokens}in/{response.output_tokens}out | Latency: {response.latency_ms:.2f}ms"
                 )
                 return response
             except Exception as exc:
+                LLM_REQUESTS_TOTAL.inc(provider=llm_provider.provider_name, model=model or "default", status="failure")
                 logger.warning(
                     f"LLM Generation Attempt {attempt}/{max_retries} failed for {llm_provider.provider_name}: {exc}"
                 )
