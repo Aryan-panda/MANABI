@@ -42,7 +42,7 @@ class Message(Base):
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False)  # 'user', 'assistant', 'system'
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    model: Optional[Mapped[str]] = mapped_column(String(100), nullable=True)
+    model: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     token_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
@@ -60,11 +60,11 @@ class Feedback(Base):
     conversation_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    message_id: Optional[Mapped[uuid.UUID]] = mapped_column(
+    message_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL"), nullable=True, index=True
     )
     rating: Mapped[int] = mapped_column(Integer, nullable=False)  # 1 (thumbs down) or 5 (thumbs up)
-    comment: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     conversation: Mapped["Conversation"] = relationship("Conversation", back_populates="feedback")

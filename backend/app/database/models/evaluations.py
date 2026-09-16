@@ -25,7 +25,7 @@ class AuditEvent(Base):
     __tablename__ = "audit_events"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Optional[Mapped[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
     event_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)  # 'login', 'document_upload', 'tool_call'
     resource_type: Mapped[str] = mapped_column(String(100), nullable=False)           # 'conversation', 'memory', 'agent'
     resource_id: Mapped[str] = mapped_column(String(100), nullable=False)

@@ -59,9 +59,9 @@ class DocumentChunk(Base):
         UUID(as_uuid=True), ForeignKey("document_versions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
-    section: Optional[Mapped[str]] = mapped_column(String(255), nullable=True)
-    subsection: Optional[Mapped[str]] = mapped_column(String(255), nullable=True)
-    page: Optional[Mapped[int]] = mapped_column(Integer, nullable=True)
+    section: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    subsection: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[Any] = mapped_column(VECTOR_TYPE, nullable=True)
     metadata_json: Mapped[Dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
@@ -84,7 +84,7 @@ class Citation(Base):
         UUID(as_uuid=True), ForeignKey("document_chunks.id", ondelete="CASCADE"), nullable=False, index=True
     )
     relevance_score: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)
-    quote: Optional[Mapped[str]] = mapped_column(Text, nullable=True)
+    quote: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
 
     execution: Mapped["AgentExecution"] = relationship("AgentExecution", back_populates="citations")
